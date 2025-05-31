@@ -1,8 +1,10 @@
 const Product = require("../model/product");
 
 const getAllProducts = async (req, res) => {
+  console.log("req.params", req.query);
+
   try {
-    const { page = 1, sort, search = "", category, subCategory } = req.query;
+    const { page = 1, search = "", sort, category, subCategory } = req.query;
     const limit = 12;
     const skip = (page - 1) * limit;
 
@@ -12,12 +14,21 @@ const getAllProducts = async (req, res) => {
       query.name = { $regex: search, $options: "i" };
     }
 
+    // if (category) {
+    //   query.category = category;
+    // }
+
     if (category) {
-      query.category = category;
+      const categoryArray = category.split(",").map((c) => c.trim());
+      query.category = { $in: categoryArray };
     }
 
+    // if (subCategory) {
+    //   query.subCategory = subCategory;
+    // }
     if (subCategory) {
-      query.subCategory = subCategory;
+      const subCategoryArray = subCategory.split(",").map((s) => s.trim());
+      query.subCategory = { $in: subCategoryArray };
     }
 
     let sortOption = {};
@@ -26,6 +37,8 @@ const getAllProducts = async (req, res) => {
     } else if (sort === "highToLow") {
       sortOption.price = -1;
     }
+
+    console.log("query", query);
 
     const total = await Product.countDocuments(query);
 
