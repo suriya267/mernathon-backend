@@ -1,6 +1,7 @@
 const Wishlist = require("../model/wishlist");
 
 const getWishlist = async (req, res) => {
+  console.log("req.user", req.user);
   try {
     const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate(
       "items.productId"
